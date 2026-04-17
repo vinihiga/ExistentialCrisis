@@ -1,0 +1,15 @@
+[Bb]in/
+[Oo]bj/
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+*.tmod
+*.log
+*.pdb
+Thumbs.db
+desktop.ini
+.DS_Store
+.fuse_hidden*
+.directory

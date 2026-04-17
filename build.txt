@@ -1,0 +1,3 @@
+displayName = Existential Crisis
+author = MisterHiga
+version = 0.1
