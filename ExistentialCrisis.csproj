@@ -1,16 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+	
+	
 	<!-- Import tModLoader mod properties -->
 	<Import Project="..\tModLoader.targets" />
 
 	<!-- General -->
 	<PropertyGroup>
-		
-	</PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
 
 	<!-- References -->
 	<ItemGroup>
-		
+	  <PackageReference Include="Google.GenAI" Version="1.6.1" />
 	</ItemGroup>
 
 </Project>

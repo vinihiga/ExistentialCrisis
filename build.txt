@@ -1,3 +1,4 @@
 displayName = Existential Crisis
 author = MisterHiga
 version = 0.1
+dllReferences = Google.GenAI, Google.Apis.Auth, Google.Apis.Core, Google.Apis, Microsoft.Extensions.AI.Abstractions, System.CodeDom, System.IO.Pipelines, System.Management, System.Text.Encodings.Web, System.Text.Json

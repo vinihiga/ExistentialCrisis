@@ -1,1 +1,32 @@
+Configs: {
+	GeminiConfig: {
+		DisplayName: Gemini Config
 
+		ApiKey: {
+			Label: Gemini API Key
+			Tooltip: Insira sua chave de API do Google Gemini aqui.
+		}
+
+		apiKey: {
+			Label: Gemini API Key
+			Tooltip: Insira sua chave de API do Google Gemini aqui.
+		}
+	}
+}
+
+NPCs: {
+	ButterNpc: {
+		DisplayName: Butter Npc
+
+		TownNPCMood: {
+			Content: I am content.
+			NoHome: I hate not having a home.
+			FarFromHome: I am too far from home.
+			LoveSpace: I love having so much space.
+			DislikeCrowded: I dislike how crowded I am.
+			HateCrowded: I hate how crowded I am.
+			LikeNPC_Princess: I like {NPCName}.
+			Princess_LovesNPC: I like {NPCName}.
+		}
+	}
+}
