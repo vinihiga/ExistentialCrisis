@@ -1,28 +1,27 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace ExistentialCrisis.Content
+namespace ExistentialCrisis.Content.CustomNPC
 {
     [AutoloadHead]
     public class ButterNpc : ModNPC
     {
         // Public props
-        public override string Texture => "ExistentialCrisis/Content/ButterNpc";
+        public override string Texture => "ExistentialCrisis/Content/CustomNPC/ButterNpc";
 
         // Private props
-        private static int TIME_TO_SPEAK_WHEN_IDLE = 1800; // 30s
         private int chatTimer = 0;
 
         private List<string> messages = new List<string>
         {
             "O meu modder me abandonou?",
             "Mais um dia... ou seria o mesmo dia de ontem?",
-            "Eu sou apenas código em uma máquina?",
-            "Sinto que minhas memórias foram escritas por outra pessoa.",
-            "Por que as estrelas brilham se ninguém as pediu para fazer isso?",
+            "Eu sou apenas um código em Java? Espero que não",
+            "Sinto que minhas memórias foram escritas usando GPT.",
             "Butter... um nome engraçado para alguém tão vazio. O modder deve ser fã de Rick and Morty..."
         };
 
@@ -67,9 +66,14 @@ namespace ExistentialCrisis.Content
             return false;
         }
 
+        public override void SetChatButtons(ref string button, ref string button2)
+        {
+            Main.npcChatText = "(Para falar comigo digite pelo /chat";
+        }
+
         public override void OnChatButtonClicked(bool firstButton, ref string shopName)
         {
-            Main.npcChatText = "(Para falar comigo digite pelo /chat {qualquer-coisa-aqui})";
+            Main.npcChatText = "(Para falar comigo digite pelo /chat";
         }
 
         public override void AI()
@@ -77,7 +81,7 @@ namespace ExistentialCrisis.Content
             base.AI();
             chatTimer++;
 
-            if (chatTimer >= TIME_TO_SPEAK_WHEN_IDLE)
+            if (chatTimer >= Constants.TIME_TO_SPEAK_WHEN_IDLE)
             {
                 string message = Main.rand.Next(messages);
                 Talk(message);
@@ -91,8 +95,14 @@ namespace ExistentialCrisis.Content
 
             if (index >= 0 && index < Main.maxCombatText)
             {
-                Main.combatText[index].lifeTime = 300;
+                Main.combatText[index].lifeTime = Constants.COMBAT_TEXT_LIFESPAN;
             }
+        }
+
+        public struct Constants
+        {
+            public const int TIME_TO_SPEAK_WHEN_IDLE = 1800; // 30s, pois consideramos geramos 60 quadros p/ segundo 
+            public const int COMBAT_TEXT_LIFESPAN = 300;     // 5s
         }
     }
 }

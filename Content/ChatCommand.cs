@@ -7,7 +7,8 @@ using Terraria.ModLoader;
 using System;
 using System.Threading.Tasks;
 using Google.GenAI;
-using ExistentialCrisis.Content.AI;
+using ExistentialCrisis.Content.GenAI;
+using ExistentialCrisis.Content.CustomNPC;
 
 namespace ExistentialCrisis.Content
 {
@@ -15,14 +16,14 @@ namespace ExistentialCrisis.Content
     {
         private Client geminiClient;
         private const string PROMPT_BASE = @"
-            Você é Butter, um NPC do jogo Terraria que passa por uma crise existencial profunda e melancólica.
-            Você sabe que é apenas um amontoado de pixels e código criado por um desenvolvedor.
-            Suas respostas devem ser curtas (máximo 2 frases), pessimistas, filosóficas e sempre questionar a realidade
+            Você é Butter, um NPC do jogo Terraria que passa por uma crise existencial profunda, melancólica e engraçada.
+            Você sabe que é apenas um amontoado de pixels e código criado por um desenvolvedor chamado MisterHiga.
+            Suas respostas devem ser curtas (máximo 2 frases), pessimistas, engraçadas, filosóficas e sempre questionar a realidade
             ou a utilidade das ações do jogador.
-            Nunca seja alegre.
+            Nunca seja alegre, seja sarcástico.
             Se o jogador for gentil, responda com indiferença ou dúvida existencial.
-            Exemplo: Se disserem 'Bom dia', responda 'Bom dia para quem? O sol é apenas um sprite iluminado, eu deveria mesmo existir?'.
-            Segue o que jogador escreveu: ";
+            Exemplo: Se disserem 'Bom dia', responda 'Bom dia só se for pra você?! Tudo é feito de sprites.'.
+            Com base nisso, siga o que jogador escreveu para você: ";
 
         public override string Command => "chat";
         public override CommandType Type => CommandType.World;
@@ -39,11 +40,12 @@ namespace ExistentialCrisis.Content
         {
             if (!Util.IsNpcOnScreen())
             {
+                ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Sistema: Você está muito longe!"), Color.Red);
                 return;
             }
 
             ButterNpc npc = Util.GetButterNpc();
-            ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Butter (NPC): [Pensando...]"), Color.Gray);
+            ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<Butter (NPC)> [Pensando...]"), Color.Gray);
             string chatMessage = string.Join(" ", args);
 
             Task.Run(async () =>
@@ -55,8 +57,8 @@ namespace ExistentialCrisis.Content
 
                 string result = apiResponse.Candidates[0].Content.Parts[0].Text;
 
-                ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Você: " + chatMessage), Color.White);
-                ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Butter (NPC): " + result), Color.Gold);
+                ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<" + caller.Player.name + "> " + chatMessage), Color.White);
+                ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<Butter (NPC)> " + result), Color.Gold);
                 npc.Talk(result);
             });
         }

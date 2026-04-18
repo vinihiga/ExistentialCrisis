@@ -4,8 +4,8 @@ using Terraria.ModLoader;
 using Terraria.Chat;
 using Terraria.Localization;
 using Microsoft.Xna.Framework;
-using ExistentialCrisis.Content;
 using Terraria.ID;
+using ExistentialCrisis.Content.CustomNPC;
 
 namespace ExistentialCrisis
 {
