@@ -14,15 +14,7 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         // Private props
         private int chatTimer = 0;
-
-        private List<string> messages = new List<string>
-        {
-            "O meu modder me abandonou?",
-            "Mais um dia... ou seria o mesmo dia de ontem?",
-            "Eu sou apenas um código em Java? Espero que não",
-            "Sinto que minhas memórias foram escritas usando GPT.",
-            "Butter... um nome engraçado para alguém tão vazio. O modder deve ser fã de Rick and Morty..."
-        };
+        private Player target;
 
         // Methods
 
@@ -51,6 +43,7 @@ namespace ExistentialCrisis.Content.CustomNPC
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath1;
             NPC.knockBackResist = 0.5f;
+            NPC.aiStyle = NPCAIStyleID.Fighter;
             AnimationType = NPCID.Guide;
         }
 
@@ -67,12 +60,12 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         public override void SetChatButtons(ref string button, ref string button2)
         {
-            Main.npcChatText = "(Para falar comigo digite pelo /chat)";
+            Main.npcChatText = Constants.TUTORIAL_INFO;
         }
 
         public override void OnChatButtonClicked(bool firstButton, ref string shopName)
         {
-            Main.npcChatText = "(Para falar comigo digite pelo /chat)";
+            Main.npcChatText = Constants.TUTORIAL_INFO;
         }
 
         public override void AI()
@@ -82,8 +75,13 @@ namespace ExistentialCrisis.Content.CustomNPC
 
             if (chatTimer >= Constants.TIME_TO_SPEAK_WHEN_IDLE)
             {
-                string message = Main.rand.Next(messages);
+                string message = Main.rand.Next(Constants.MESSAGES);
                 Talk(message);
+            }
+
+            if (this.target != null)
+            {
+                this.Follow(this.target);
             }
         }
 
@@ -95,6 +93,37 @@ namespace ExistentialCrisis.Content.CustomNPC
             if (index >= 0 && index < Main.maxCombatText)
             {
                 Main.combatText[index].lifeTime = Constants.COMBAT_TEXT_LIFESPAN;
+            }
+        }
+
+        public void SetTarget(Player player)
+        {
+            this.target = player;
+        }
+
+        public void StopTargeting()
+        {
+            this.target = null;
+        }
+
+        private void Follow(Player player)
+        {
+            if (player == null || !player.active)
+            {
+                return;
+            }
+
+            Vector2 direction = player.Center - NPC.Center;
+            float distance = direction.Length();
+
+            if (distance > 50f)
+            {
+                direction.Normalize();
+                NPC.velocity = direction * 2f;
+            }
+            else
+            {
+                NPC.velocity *= 0.9f;
             }
         }
 
@@ -115,6 +144,17 @@ namespace ExistentialCrisis.Content.CustomNPC
         {
             public const int TIME_TO_SPEAK_WHEN_IDLE = 1800; // 30s, pois consideramos geramos 60 quadros p/ segundo 
             public const int COMBAT_TEXT_LIFESPAN = 300;     // 5s
+
+            public static readonly string TUTORIAL_INFO = "(Para falar comigo digite pelo /chat)";
+
+            public static readonly List<string> MESSAGES = new List<string>
+            {
+                "O meu modder me abandonou?",
+                "Mais um dia... ou seria o mesmo dia de ontem?",
+                "Eu sou apenas um código em Java? Espero que não",
+                "Sinto que minhas memórias foram escritas usando GPT.",
+                "Butter... um nome engraçado para alguém tão vazio. O modder deve ser fã de Rick and Morty..."
+            };
         }
     }
 }

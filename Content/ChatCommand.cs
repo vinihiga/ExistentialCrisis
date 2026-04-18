@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Terraria.Chat;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria;
 
 namespace ExistentialCrisis.Content
 {
@@ -46,7 +47,13 @@ namespace ExistentialCrisis.Content
 
             switch (args[0].ToLower())
             {
+                case "follow":
                 case "me-siga":
+                    npc.SetTarget(Main.LocalPlayer);
+                    break;
+                case "stop":
+                case "pare-de-seguir":
+                    npc.StopTargeting();
                     break;
                 default:
                     if (geminiClient == null)
