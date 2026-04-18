@@ -7,52 +7,24 @@ namespace ExistentialCrisis.Content
 {
     public static class Util
     {
-        public static bool IsNpcOnScreen()
+        public static bool IsNpcOnScreen(NPC npc)
         {
-            int npcType = ModContent.NPCType<ButterNpc>();
-            foreach (NPC npc in Main.npc)
-            {
-                if (!npc.active && npc.type != npcType)
-                {
-                    continue;
-                }
+            int width = NPC.sWidth + NPC.safeRangeX;
+            int height = NPC.sHeight + NPC.safeRangeY;
 
-                int w = NPC.sWidth + NPC.safeRangeX * 2;
-                int h = NPC.sHeight + NPC.safeRangeY * 2;
-                Rectangle npcScreenRect = new Rectangle((int)npc.Center.X - w / 2, (int)npc.Center.Y - h / 2, w, h);
+            Rectangle npcScreenRect = new Rectangle(
+                (int)(npc.Center.X - (width / 2)),
+                (int)(npc.Center.Y - (height / 2)),
+                width,
+                height
+            );
 
-                if (AnyPlayerInRect(npcScreenRect))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return IsLocaPlayerInRect(npcScreenRect);
         }
 
-        private static bool AnyPlayerInRect(Rectangle rect)
+        private static bool IsLocaPlayerInRect(Rectangle rect)
         {
-            foreach (Player player in Main.player)
-            {
-                if (player.active && player.getRect().Intersects(rect))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static ButterNpc GetButterNpc()
-        {
-            int npcType = ModContent.NPCType<ButterNpc>();
-            foreach (NPC npc in Main.npc)
-            {
-                if (npc.active && npc.type == npcType)
-                {
-                    return npc.ModNPC as ButterNpc;
-                }
-            }
-            return null;
+            return Main.LocalPlayer.getRect().Intersects(rect);
         }
     }
 }

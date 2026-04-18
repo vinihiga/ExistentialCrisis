@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Terraria.ModLoader.Config;
 
-namespace ExistentialCrisis.Content.GenAI
+namespace ExistentialCrisis.Content.Config
 {
     public class GeminiConfig : ModConfig
     {

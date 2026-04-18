@@ -1,9 +1,5 @@
-using System;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.Chat;
-using Terraria.Localization;
-using Microsoft.Xna.Framework;
 using Terraria.ID;
 using ExistentialCrisis.Content.CustomNPC;
 
@@ -11,9 +7,9 @@ namespace ExistentialCrisis
 {
     public class ExistentialCrisis : ModSystem
     {
-        public override void OnWorldLoad()
+        public override void PostWorldLoad()
         {
-            base.Load();
+            base.PostWorldGen();
             this.SpawnButter();
         }
 

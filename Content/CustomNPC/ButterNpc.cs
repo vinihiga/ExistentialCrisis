@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
@@ -68,12 +67,12 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         public override void SetChatButtons(ref string button, ref string button2)
         {
-            Main.npcChatText = "(Para falar comigo digite pelo /chat";
+            Main.npcChatText = "(Para falar comigo digite pelo /chat)";
         }
 
         public override void OnChatButtonClicked(bool firstButton, ref string shopName)
         {
-            Main.npcChatText = "(Para falar comigo digite pelo /chat";
+            Main.npcChatText = "(Para falar comigo digite pelo /chat)";
         }
 
         public override void AI()
@@ -97,6 +96,19 @@ namespace ExistentialCrisis.Content.CustomNPC
             {
                 Main.combatText[index].lifeTime = Constants.COMBAT_TEXT_LIFESPAN;
             }
+        }
+
+        public static ButterNpc GetSomeInstance()
+        {
+            int npcType = ModContent.NPCType<ButterNpc>();
+            foreach (NPC npc in Main.npc)
+            {
+                if (npc.active && npc.type == npcType)
+                {
+                    return npc.ModNPC as ButterNpc;
+                }
+            }
+            return null;
         }
 
         public struct Constants
