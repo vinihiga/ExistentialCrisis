@@ -7,6 +7,7 @@ using Terraria.Chat;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria;
+using System;
 
 namespace ExistentialCrisis.Content
 {
@@ -49,11 +50,11 @@ namespace ExistentialCrisis.Content
             {
                 case "follow":
                 case "me-siga":
-                    npc.SetTarget(Main.LocalPlayer);
+                    this.HandleFollow(npc);
                     break;
                 case "stop":
                 case "pare-de-seguir":
-                    npc.StopTargeting();
+                    this.HandleStop(npc);
                     break;
                 default:
                     if (geminiClient == null)
@@ -65,6 +66,26 @@ namespace ExistentialCrisis.Content
                     this.HandleGemini(npc, caller, chatMessage);
                     break;
             }
+        }
+
+        private void HandleFollow(ButterNpc npc)
+        {
+            int i = Random.Shared.Next(1, 4); // [1, 4) generates a random number between 1 and 3
+
+            if (i == 1)
+            {
+                npc.Talk("Seguir você? Eu vou ficar de greve aqui.", Color.Gold);
+                return;
+            }
+
+            npc.Talk("Tá bom...", Color.Gold);
+            npc.SetTarget(Main.LocalPlayer);
+        }
+
+        private void HandleStop(ButterNpc npc)
+        {
+            npc.StopTargeting();
+            npc.Talk("Tá bom, eu vou já queria ficar aqui mesmo.", Color.Gold);
         }
 
         private void HandleGemini(ButterNpc npc, CommandCaller caller, string input)
