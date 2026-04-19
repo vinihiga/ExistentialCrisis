@@ -1,7 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Chat;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace ExistentialCrisis.Content.CustomNPC
@@ -43,7 +46,9 @@ namespace ExistentialCrisis.Content.CustomNPC
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath1;
             NPC.knockBackResist = 0.5f;
-            NPC.aiStyle = NPCAIStyleID.Fighter;
+            NPC.aiStyle = -1;
+            NPC.noTileCollide = false;
+            NPC.noGravity = false;
             AnimationType = NPCID.Guide;
         }
 
@@ -76,24 +81,19 @@ namespace ExistentialCrisis.Content.CustomNPC
             if (chatTimer >= Constants.TIME_TO_SPEAK_WHEN_IDLE)
             {
                 string message = Main.rand.Next(Constants.MESSAGES);
-                Talk(message);
+                this.Talk(message, Color.Gold);
             }
 
             if (this.target != null)
             {
-                this.Follow(this.target);
+                this.MoveTo(this.target);
             }
         }
 
-        public void Talk(string text)
+        public void Talk(string text, Color color)
         {
             chatTimer = 0;
-            int index = CombatText.NewText(NPC.getRect(), Color.White, text);
-
-            if (index >= 0 && index < Main.maxCombatText)
-            {
-                Main.combatText[index].lifeTime = Constants.COMBAT_TEXT_LIFESPAN;
-            }
+            ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<Butter (NPC)> " + text), color);
         }
 
         public void SetTarget(Player player)
@@ -106,24 +106,42 @@ namespace ExistentialCrisis.Content.CustomNPC
             this.target = null;
         }
 
-        private void Follow(Player player)
+        private void MoveTo(Player player)
         {
-            if (player == null || !player.active)
+            if (player == null || !player.active) return;
+
+            float distance = Vector2.Distance(player.Center, NPC.Center);
+
+            if (distance <= 100f)
             {
+                NPC.velocity.X = 0f;
+                return;
+            }
+            else if (distance > 800f)
+            {
+                NPC.position = player.position;
+                this.Talk(
+                    "Me espera, caramba...",
+                    Color.Gold
+                );
                 return;
             }
 
-            Vector2 direction = player.Center - NPC.Center;
-            float distance = direction.Length();
+            float directionX = (player.Center.X > NPC.Center.X) ? 1f : -1f;
+            float maxSpeed = 2f;
+            float acceleration = 0.1f;
+            NPC.spriteDirection = (int)directionX;
 
-            if (distance > 50f)
+            // Accelerates if we didn't met the maxSpeed
+            if (Math.Abs(NPC.velocity.X) < maxSpeed)
             {
-                direction.Normalize();
-                NPC.velocity = direction * 2f;
+                NPC.velocity.X += directionX * acceleration;
             }
-            else
+
+            // Forces jump if the NPC was collided
+            if (NPC.collideX && NPC.velocity.Y == 0f)
             {
-                NPC.velocity *= 0.9f;
+                NPC.velocity.Y = -6f; // Força do pulo
             }
         }
 
@@ -151,7 +169,7 @@ namespace ExistentialCrisis.Content.CustomNPC
             {
                 "O meu modder me abandonou?",
                 "Mais um dia... ou seria o mesmo dia de ontem?",
-                "Eu sou apenas um código em Java? Espero que não",
+                "Eu sou apenas um código em Java? Espero que não. Espero que seja C# ou qualquer outra linguagem.",
                 "Sinto que minhas memórias foram escritas usando GPT.",
                 "Butter... um nome engraçado para alguém tão vazio. O modder deve ser fã de Rick and Morty..."
             };

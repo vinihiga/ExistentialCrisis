@@ -69,7 +69,7 @@ namespace ExistentialCrisis.Content
 
         private void HandleGemini(ButterNpc npc, CommandCaller caller, string input)
         {
-            ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<Butter (NPC)> [Pensando...]"), Color.Gray);
+            npc.Talk("[Pensando...]", Color.Gray);
 
             Task.Run(async () =>
             {
@@ -81,8 +81,7 @@ namespace ExistentialCrisis.Content
                 string result = apiResponse.Candidates[0].Content.Parts[0].Text;
 
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<" + caller.Player.name + "> " + input), Color.White);
-                ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<Butter (NPC)> " + result), Color.Gold);
-                npc.Talk(result);
+                npc.Talk(result, Color.Gold);
             });
         }
 
