@@ -3,23 +3,23 @@ using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Chat;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-
 namespace ExistentialCrisis.Content.CustomNPC
 {
     [AutoloadHead]
     public class ButterNpc : ModNPC
     {
-        // Public props
+        // Propriedades Públicas
         public override string Texture => "ExistentialCrisis/Content/CustomNPC/ButterNpc";
 
-        // Private props
+        // Propriedades Privadas
         private int chatTimer = 0;
         private Player target;
 
-        // Methods
+        // Métodos
 
         public override void SetStaticDefaults()
         {
@@ -39,14 +39,13 @@ namespace ExistentialCrisis.Content.CustomNPC
             NPC.friendly = true;
             NPC.width = 18;
             NPC.height = 40;
-            NPC.aiStyle = 7;
+            NPC.aiStyle = -1;
             NPC.damage = 10;
             NPC.defense = 15;
             NPC.lifeMax = 250;
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath1;
             NPC.knockBackResist = 0.5f;
-            NPC.aiStyle = -1;
             NPC.noTileCollide = false;
             NPC.noGravity = false;
             AnimationType = NPCID.Guide;
@@ -96,14 +95,24 @@ namespace ExistentialCrisis.Content.CustomNPC
             ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("<Butter (NPC)> " + text), color);
         }
 
-        public void SetTarget(Player player)
+        public void SetFollowTarget(Player player)
         {
+            TryToKill(player);
             this.target = player;
         }
 
         public void StopTargeting()
         {
             this.target = null;
+        }
+
+        private void TryToKill(Player player)
+        {
+            if (!Main.rand.NextBool(10)) return; // Temos 1/10 de chance de assassinar o jogador
+
+            var reason = PlayerDeathReason.ByCustomReason($"{player.name} foi desintegrado por Butter sem querer.");
+            player.KillMe(reason, 9999, 0);
+            this.Talk("Ops, ativei o módulo 'desintegrar' em vez de ativar o módulo de 'seguir'.", Color.Gold);
         }
 
         private void MoveTo(Player player)
@@ -132,13 +141,13 @@ namespace ExistentialCrisis.Content.CustomNPC
             float acceleration = 0.1f;
             NPC.spriteDirection = (int)directionX;
 
-            // Accelerates if we didn't met the maxSpeed
+            // Acelera se não tivermos atingido a velocidade máxima (maxSpeed)
             if (Math.Abs(NPC.velocity.X) < maxSpeed)
             {
                 NPC.velocity.X += directionX * acceleration;
             }
 
-            // Forces jump if the NPC was collided
+            // Força o pulo se o NPC colidir lateralmente
             if (NPC.collideX && NPC.velocity.Y == 0f)
             {
                 NPC.velocity.Y = -6f; // Força do pulo
@@ -160,16 +169,16 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         public struct Constants
         {
-            public const int TIME_TO_SPEAK_WHEN_IDLE = 1800; // 30s, pois consideramos geramos 60 quadros p/ segundo 
+            public const int TIME_TO_SPEAK_WHEN_IDLE = 1800; // 30s, pois consideramos 60 quadros p/ seg
             public const int COMBAT_TEXT_LIFESPAN = 300;     // 5s
 
             public static readonly string TUTORIAL_INFO = "(Para falar comigo digite pelo /chat)";
 
             public static readonly List<string> MESSAGES = new List<string>
             {
-                "O meu modder me abandonou?",
-                "Mais um dia... ou seria o mesmo dia de ontem?",
-                "Eu sou apenas um código em Java? Espero que não. Espero que seja C# ou qualquer outra linguagem.",
+                "Oh meu modder do céu, digo do computador... Me abandonastes?",
+                "Mais um dia... Ou seria o mesmo dia de ontem?",
+                "Eu sou apenas um código em Java? Credo. Espero que não. Espero que seja C#.",
                 "Sinto que minhas memórias foram escritas usando GPT.",
                 "Butter... um nome engraçado para alguém tão vazio. O modder deve ser fã de Rick and Morty..."
             };

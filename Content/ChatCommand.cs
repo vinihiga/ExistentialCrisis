@@ -70,16 +70,16 @@ namespace ExistentialCrisis.Content
 
         private void HandleFollow(ButterNpc npc)
         {
-            int i = Random.Shared.Next(1, 4); // [1, 4) generates a random number between 1 and 3
-
-            if (i == 1)
+            // Há 33% de chance do NPC se recusar a seguir o jogador,
+            // pois é 1/3 de chance de gerar o número 1
+            if (Main.rand.NextBool(3))
             {
                 npc.Talk("Seguir você? Eu vou ficar de greve aqui.", Color.Gold);
                 return;
             }
 
             npc.Talk("Tá bom...", Color.Gold);
-            npc.SetTarget(Main.LocalPlayer);
+            npc.SetFollowTarget(Main.LocalPlayer);
         }
 
         private void HandleStop(ButterNpc npc)
