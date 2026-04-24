@@ -17,6 +17,7 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         // Propriedades Privadas
         private int chatTimer = 0;
+        private int trollingTimer = 0;
         private Player target;
 
         // Métodos
@@ -76,6 +77,7 @@ namespace ExistentialCrisis.Content.CustomNPC
         {
             base.AI();
             chatTimer++;
+            trollingTimer++;
 
             if (chatTimer >= Constants.TIME_TO_SPEAK_WHEN_IDLE)
             {
@@ -86,6 +88,7 @@ namespace ExistentialCrisis.Content.CustomNPC
             if (this.target != null)
             {
                 this.MoveTo(this.target);
+                this.TryToMurderInDarkArea(this.target);
             }
         }
 
@@ -97,7 +100,7 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         public void SetFollowTarget(Player player)
         {
-            TryToKill(player);
+            TryToDesintegrate(player);
             this.target = player;
         }
 
@@ -106,13 +109,39 @@ namespace ExistentialCrisis.Content.CustomNPC
             this.target = null;
         }
 
-        private void TryToKill(Player player)
+        private void TryToDesintegrate(Player player)
         {
             if (!Main.rand.NextBool(10)) return; // Temos 1/10 de chance de assassinar o jogador
 
             var reason = PlayerDeathReason.ByCustomReason($"{player.name} foi desintegrado por Butter sem querer.");
             player.KillMe(reason, 9999, 0);
             this.Talk("Ops, ativei o módulo 'desintegrar' em vez de ativar o módulo de 'seguir'.", Color.Gold);
+        }
+
+        private void TryToMurderInDarkArea(Player player)
+        {
+            if (trollingTimer < Constants.TIME_TO_ALLOW_TO_TROLL) return;
+
+            int butterTileX = (int)(NPC.Center.X / 16f);
+            int butterTileY = (int)(NPC.Center.Y / 16f);
+
+            Color npcTileColor = Lighting.GetColor(butterTileX, butterTileY);
+
+            int playerTileX = (int)(player.Center.X / 16f);
+            int playerTileY = (int)(player.Center.Y / 16f);
+
+            Color playerTileColor = Lighting.GetColor(playerTileX, playerTileY);
+
+            bool isButterInsideDarkArea = npcTileColor.R < 30 && npcTileColor.G < 30 && npcTileColor.B < 30;
+            bool isPlayerInsideDarArea = playerTileColor.R < 30 && playerTileColor.G < 30 && playerTileColor.B < 30;
+
+            if (isButterInsideDarkArea && isPlayerInsideDarArea)
+            {
+                var reason = PlayerDeathReason.ByCustomReason($"{player.name} foi assassinado por Butter em uma área escura. Será que ele é um psicopata? Aliás, robôs são psicopatas?!");
+                player.KillMe(reason, 9999, 0);
+                this.Talk("Mwahaha.", Color.Gold);
+                trollingTimer = 0;
+            }
         }
 
         private void MoveTo(Player player)
@@ -169,8 +198,9 @@ namespace ExistentialCrisis.Content.CustomNPC
 
         public struct Constants
         {
-            public const int TIME_TO_SPEAK_WHEN_IDLE = 1800; // 30s, pois consideramos 60 quadros p/ seg
-            public const int COMBAT_TEXT_LIFESPAN = 300;     // 5s
+            public const int TIME_TO_SPEAK_WHEN_IDLE = AVG_FPS * 30; // 30s, pois consideramos 60 quadros p/ seg
+            public const int TIME_TO_ALLOW_TO_TROLL = AVG_FPS * 30;  // 30s
+            public const int AVG_FPS = 60;
 
             public static readonly string TUTORIAL_INFO = "(Para falar comigo digite pelo /chat)";
 
