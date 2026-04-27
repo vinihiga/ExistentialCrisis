@@ -6,8 +6,6 @@ namespace ExistentialCrisis.Content.CustomNPC
 {
   public class ButterTrollingSystem
   {
-    public bool isAllowed = false;
-
     private ButterNpc butter;
 
     public ButterTrollingSystem(ButterNpc butter)
@@ -17,18 +15,13 @@ namespace ExistentialCrisis.Content.CustomNPC
 
     public void Desintegrate(Player player)
     {
-      if (!this.isAllowed) return;
-
       var reason = PlayerDeathReason.ByCustomReason($"{player.name} foi desintegrado por Butter sem querer.");
       player.KillMe(reason, 9999, 0);
       butter.Talk("Ops, ativei o módulo 'desintegrar' em vez de ativar o módulo de 'seguir'.", Color.Gold);
-      this.isAllowed = false;
     }
 
     public void MurderInDarkArea(Player player)
     {
-      if (!this.isAllowed) return;
-
       int butterTileX = (int)(butter.NPC.Center.X / 16f);
       int butterTileY = (int)(butter.NPC.Center.Y / 16f);
 
@@ -47,7 +40,6 @@ namespace ExistentialCrisis.Content.CustomNPC
         var reason = PlayerDeathReason.ByCustomReason($"{player.name} foi assassinado por Butter em uma área escura. Será que ele é um psicopata? Aliás, robôs são psicopatas?!");
         player.KillMe(reason, 9999, 0);
         butter.Talk("Mwahaha.", Color.Gold);
-        this.isAllowed = false;
       }
     }
   }

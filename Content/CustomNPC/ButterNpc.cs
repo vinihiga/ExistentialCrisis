@@ -14,11 +14,15 @@ namespace ExistentialCrisis.Content.CustomNPC
         // Propriedades Públicas
         public override string Texture => "ExistentialCrisis/Content/CustomNPC/ButterNpc";
 
+        // Propriedades internas
+        internal Player targetPlayer;
+        internal Item targetItem;
+
         // Propriedades Privadas
         private ButterTrollingSystem trollingSystem;
+        private ButterGrabbingSystem grabbingSystem;
         private int chatTimer = 0;
-        private Player targetPlayer;
-        private Item targetItem;
+        private bool isTrollingAllowed = false;
 
         // Métodos
 
@@ -37,6 +41,8 @@ namespace ExistentialCrisis.Content.CustomNPC
         public override void SetDefaults()
         {
             this.trollingSystem = new ButterTrollingSystem(this);
+            this.grabbingSystem = new ButterGrabbingSystem(this);
+
             NPC.townNPC = true;
             NPC.friendly = true;
             NPC.width = 18;
@@ -96,7 +102,11 @@ namespace ExistentialCrisis.Content.CustomNPC
                 }
 
                 this.MoveTo(this.targetPlayer);
-                this.trollingSystem.MurderInDarkArea(this.targetPlayer);
+
+                if (trollingSystem != null && this.isTrollingAllowed)
+                {
+                    this.trollingSystem.MurderInDarkArea(this.targetPlayer);
+                }
             }
         }
 
@@ -110,65 +120,23 @@ namespace ExistentialCrisis.Content.CustomNPC
         {
             this.ResetState();
 
-            // Nós podemos permitir, atualmente, no máximo 2
-            // "trollagens"...
-            this.trollingSystem.isAllowed = Main.rand.NextBool(100);
-
-            if (this.trollingSystem.isAllowed)
+            if (trollingSystem != null)
             {
-                this.trollingSystem.Desintegrate(player);
+                this.isTrollingAllowed = Main.rand.NextBool(100);
+                if (this.isTrollingAllowed)
+                {
+                    this.trollingSystem.Desintegrate(player);
+                }
+
+                this.isTrollingAllowed = Main.rand.NextBool(100); // This second isAllowed is intentional. We can troll in another ways...
             }
 
-            this.trollingSystem.isAllowed = Main.rand.NextBool(100);
             this.targetPlayer = player;
         }
 
         public void StopTargeting()
         {
             this.ResetState();
-        }
-
-        private void TryToGetNearestItem()
-        {
-            if (targetItem != null)
-            {
-                bool isInvalid = !targetItem.active || targetItem.type <= ItemID.None || targetItem.stack <= 0;
-                float distance = Vector2.Distance(NPC.Center, targetItem.Center);
-                bool isTooFar = distance > Constants.MAX_ENTITY_DISTANCE;
-
-                if (isInvalid || isTooFar)
-                {
-                    targetItem = null;
-                    return;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                GetNearestItem();
-            }
-        }
-
-        private void GetNearestItem()
-        {
-            for (int i = 0; i < Main.maxItems; i++)
-            {
-                Item actualItem = Main.item[i];
-
-                if (actualItem.active && actualItem.type > ItemID.None && actualItem.stack > 0)
-                {
-                    float distance = Vector2.Distance(this.NPC.Center, actualItem.Center);
-
-                    if (distance <= Constants.MAX_ENTITY_DISTANCE)
-                    {
-                        this.targetItem = actualItem;
-                        break;
-                    }
-                }
-            }
         }
 
         private void MoveTo(Entity entity)
@@ -213,9 +181,32 @@ namespace ExistentialCrisis.Content.CustomNPC
             }
         }
 
+        public void TryToGetNearestItem()
+        {
+            if (this.targetItem != null)
+            {
+                bool isInvalid = !targetItem.active || targetItem.type <= ItemID.None || targetItem.stack <= 0;
+                float distance = Vector2.Distance(this.NPC.Center, targetItem.Center);
+                bool isTooFar = distance > ButterNpc.Constants.MAX_ENTITY_DISTANCE;
+
+                if (isInvalid || isTooFar)
+                {
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                this.targetItem = grabbingSystem.GetNearestItem();
+            }
+        }
+
         private void ResetState()
         {
-            this.trollingSystem.isAllowed = false;
+            this.isTrollingAllowed = false;
             this.targetPlayer = null;
             this.targetItem = null;
         }
