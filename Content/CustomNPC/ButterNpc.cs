@@ -96,11 +96,11 @@ namespace ExistentialCrisis.Content.CustomNPC
                 this.TryToGetNearestItem();
                 if (targetItem != null)
                 {
-                    MoveTo(this.targetItem);
+                    TryToMoveTo(this.targetItem);
                     return;
                 }
 
-                this.MoveTo(this.targetPlayer);
+                this.TryToMoveTo(this.targetPlayer);
 
                 if (trollingSystem != null && this.isTrollingAllowed)
                 {
@@ -127,7 +127,7 @@ namespace ExistentialCrisis.Content.CustomNPC
                     this.trollingSystem.Desintegrate(player);
                 }
 
-                this.isTrollingAllowed = Main.rand.NextBool(100); // This second isAllowed is intentional. We can troll in another ways...
+                this.isTrollingAllowed = Main.rand.NextBool(100); // Essa segunda associação é intencional... Nós podemos trollar de várias formas...
             }
 
             this.targetPlayer = player;
@@ -138,7 +138,7 @@ namespace ExistentialCrisis.Content.CustomNPC
             this.ResetState();
         }
 
-        private void MoveTo(Entity entity)
+        private void TryToMoveTo(Entity entity)
         {
             if (entity == null || !entity.active) return;
 
@@ -146,21 +146,12 @@ namespace ExistentialCrisis.Content.CustomNPC
 
             if (distance <= 100f)
             {
-                NPC.velocity.X = 0f;
-
-                if (grabbingSystem.IsSomeItemInsideTheBag() && entity is Player)
-                {
-                    Item someItem = grabbingSystem.RemoveFromBag();
-                    Player player = (Player)entity;
-                    Item.NewItem(player.GetSource_FromThis(), player.getRect(), someItem);
-                }
-
+                this.StopWalkingTo(entity);
                 return;
             }
             else if (distance >= Constants.MAX_ENTITY_DISTANCE && entity is Player)
             {
-                NPC.position = entity.position;
-                this.Talk("Me espera, caramba...", Color.Gold);
+                this.TeleportTo(entity);
                 return;
             }
             else if (distance >= Constants.MAX_ENTITY_DISTANCE && entity is Item)
@@ -169,7 +160,30 @@ namespace ExistentialCrisis.Content.CustomNPC
                 return;
             }
 
-            float directionX = (entity.Center.X > NPC.Center.X) ? 1f : -1f;
+            this.WalkTo(entity);
+        }
+
+        private void StopWalkingTo(Entity entity)
+        {
+            NPC.velocity.X = 0f;
+
+            if (grabbingSystem.IsSomeItemInsideTheBag() && entity is Player)
+            {
+                Item someItem = grabbingSystem.RemoveSomeItemFromBag();
+                Player player = (Player)entity;
+                Item.NewItem(player.GetSource_FromThis(), player.getRect(), someItem);
+            }
+        }
+
+        private void TeleportTo(Entity entity)
+        {
+            NPC.position = entity.position;
+            this.Talk("Me espera, caramba...", Color.Gold);
+        }
+
+        private void WalkTo(Entity entity)
+        {
+            float directionX = (entity.Center.X > NPC.Center.X) ? 1f : -1f; // Dir. é positivo e esq. é negativo
             NPC.spriteDirection = (int)directionX;
 
             // Acelera se não tivermos atingido a velocidade máxima (maxSpeed)
@@ -181,7 +195,7 @@ namespace ExistentialCrisis.Content.CustomNPC
             // Força o pulo se o NPC colidir lateralmente
             if (NPC.collideX && NPC.velocity.Y == 0f)
             {
-                NPC.velocity.Y = -10f; // Força do pulo
+                NPC.velocity.Y = Constants.JUMP_FORCE;
             }
         }
 
@@ -236,6 +250,7 @@ namespace ExistentialCrisis.Content.CustomNPC
             public const float MAX_ENTITY_DISTANCE = 1000f;
             public const float MAX_SPEED = 2f;
             public const float MAX_ACCELERATION = 0.1f;
+            public const float JUMP_FORCE = -10f;
 
             public static readonly string TUTORIAL_INFO = "(Para falar comigo digite pelo /chat)";
 

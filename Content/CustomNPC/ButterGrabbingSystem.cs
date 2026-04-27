@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
 
 namespace ExistentialCrisis.Content.CustomNPC
@@ -45,7 +44,7 @@ namespace ExistentialCrisis.Content.CustomNPC
       bag.Enqueue(safeItem);
     }
 
-    public Item RemoveFromBag()
+    public Item RemoveSomeItemFromBag()
     {
       Item someItem = bag.Dequeue();
       someItem.active = true;
