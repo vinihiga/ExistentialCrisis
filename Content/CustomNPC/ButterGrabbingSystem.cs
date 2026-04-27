@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
@@ -8,10 +9,12 @@ namespace ExistentialCrisis.Content.CustomNPC
   public class ButterGrabbingSystem
   {
     private ButterNpc butter;
+    private Queue<Item> bag;
 
     public ButterGrabbingSystem(ButterNpc butter)
     {
       this.butter = butter;
+      this.bag = new Queue<Item>(3);
     }
 
     public Item GetNearestItem()
@@ -32,6 +35,26 @@ namespace ExistentialCrisis.Content.CustomNPC
       }
 
       return null;
+    }
+
+    public void AddToBag(Item item)
+    {
+      Item safeItem = item.Clone();
+      item.active = false;
+      item.type = ItemID.None;
+      bag.Enqueue(safeItem);
+    }
+
+    public Item RemoveFromBag()
+    {
+      Item someItem = bag.Dequeue();
+      someItem.active = true;
+      return someItem;
+    }
+
+    public bool IsSomeItemInsideTheBag()
+    {
+      return bag.Count > 0;
     }
   }
 }

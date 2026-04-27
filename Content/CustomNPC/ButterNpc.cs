@@ -96,7 +96,6 @@ namespace ExistentialCrisis.Content.CustomNPC
                 this.TryToGetNearestItem();
                 if (targetItem != null)
                 {
-                    ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Tem targetItem"), Color.Red);
                     MoveTo(this.targetItem);
                     return;
                 }
@@ -148,15 +147,20 @@ namespace ExistentialCrisis.Content.CustomNPC
             if (distance <= 100f)
             {
                 NPC.velocity.X = 0f;
+
+                if (grabbingSystem.IsSomeItemInsideTheBag() && entity is Player)
+                {
+                    Item someItem = grabbingSystem.RemoveFromBag();
+                    Player player = (Player)entity;
+                    Item.NewItem(player.GetSource_FromThis(), player.getRect(), someItem);
+                }
+
                 return;
             }
             else if (distance >= Constants.MAX_ENTITY_DISTANCE && entity is Player)
             {
                 NPC.position = entity.position;
-                this.Talk(
-                    "Me espera, caramba...",
-                    Color.Gold
-                );
+                this.Talk("Me espera, caramba...", Color.Gold);
                 return;
             }
             else if (distance >= Constants.MAX_ENTITY_DISTANCE && entity is Item)
@@ -177,30 +181,30 @@ namespace ExistentialCrisis.Content.CustomNPC
             // Força o pulo se o NPC colidir lateralmente
             if (NPC.collideX && NPC.velocity.Y == 0f)
             {
-                NPC.velocity.Y = -6f; // Força do pulo
+                NPC.velocity.Y = -10f; // Força do pulo
             }
         }
 
         public void TryToGetNearestItem()
         {
-            if (this.targetItem != null)
-            {
-                bool isInvalid = !targetItem.active || targetItem.type <= ItemID.None || targetItem.stack <= 0;
-                float distance = Vector2.Distance(this.NPC.Center, targetItem.Center);
-                bool isTooFar = distance > ButterNpc.Constants.MAX_ENTITY_DISTANCE;
-
-                if (isInvalid || isTooFar)
-                {
-                    return;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
+            if (this.targetItem == null)
             {
                 this.targetItem = grabbingSystem.GetNearestItem();
+                return;
+            }
+
+            bool isInvalid = !targetItem.active || targetItem.type <= ItemID.None || targetItem.stack <= 0;
+            float distance = Vector2.Distance(this.NPC.Center, targetItem.Center);
+            bool isTooFar = distance > ButterNpc.Constants.MAX_ENTITY_DISTANCE;
+
+            if (isInvalid || isTooFar)
+            {
+                this.targetItem = null;
+            }
+            else if (distance <= 100f)
+            {
+                grabbingSystem.AddToBag(this.targetItem);
+                this.targetItem = null;
             }
         }
 
